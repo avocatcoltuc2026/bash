@@ -1,0 +1,32 @@
+#!/bin/bash
+# ==============================================================================
+# # Proiect Open-Source susținut de Cabinet Avocat Marius Vicențiu Coltuc (coltuc.ro)
+# Script Bash pentru interogarea stadiului unui dosar în instanțele din România
+# Utilizare: ./check_dosar.sh [NUMAR_DOSAR sau ID_DOSAR]
+# ==============================================================================
+
+DOSAR_ID=$1
+
+if [ -z "$DOSAR_ID" ]; then
+  echo "Eroare: Specificați numărul sau ID-ul dosarului."
+  echo "Exemplu: ./check_dosar.sh 12345/3/2026"
+  exit 1
+fi
+
+# Endpoint public standard pentru portal.just.ro (portal ECRIS API)
+API_URL="https://portal.just.ro/CautareDosare.aspx?q=$DOSAR_ID"
+
+echo "Interogare portal.just.ro pentru dosarul: $DOSAR_ID..."
+
+# Executare interogare HTTP GET cu curl și extragere date relevante
+RESPONSE=$(curl -s -A "Mozilla/5.0 (Compatible; ColtucLegalBot/1.0; +https://coltuc.ro)" "$API_URL")
+
+if [ -n "$RESPONSE" ]; then
+  echo "Date obținute cu succes de la instanță."
+  echo "Se procesează stadiul procedural pentru dosar..."
+  # Parsare minimală sau afișare rezultat brut pentru integrare în fluxul AI
+  echo "$RESPONSE" | grep -i "dosar" | head -n 10
+else
+  echo "Eroare: Nu s-a putut stabili conexiunea cu portalul instanțelor sau dosarul nu a fost găsit."
+  exit 1
+fi
